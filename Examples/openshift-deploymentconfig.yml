@@ -1,0 +1,116 @@
+apiVersion: v1
+kind: DeploymentConfig
+metadata:
+  name: activemq-ep
+  namespace: ep-customerdataload-demo
+  selfLink: /oapi/v1/namespaces/ep-customerdataload-demo/deploymentconfigs/activemq-ep
+  uid: bd21f1d1-1459-11e7-9d1d-fa163e675c32
+  resourceVersion: '3663999'
+  generation: 11
+  creationTimestamp: '2017-03-29T08:28:51Z'
+  labels:
+    app: activemq-ep
+  annotations:
+    openshift.io/generated-by: OpenShiftWebConsole
+spec:
+  strategy:
+    type: Rolling
+    rollingParams:
+      updatePeriodSeconds: 1
+      intervalSeconds: 1
+      timeoutSeconds: 600
+      maxUnavailable: 25%
+      maxSurge: 25%
+    resources:
+  triggers:
+    -
+      type: ConfigChange
+    -
+      type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - activemq-ep
+        from:
+          kind: ImageStreamTag
+          namespace: ep-customerdataload-demo
+          name: 'activemq-ep:5.14.3_001'
+        lastTriggeredImage: 'erwinnttdata/activemq@sha256:87f954368c9463c7d3a143e91cca160c1e2d9fce53f57bae9c6cc58a98cf0009'
+  replicas: 1
+  test: false
+  selector:
+    app: activemq-ep
+    deploymentconfig: activemq-ep
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: activemq-ep
+        deploymentconfig: activemq-ep
+      annotations:
+        openshift.io/generated-by: OpenShiftWebConsole
+    spec:
+      volumes:
+        -
+          name: activemq-ep-1
+          persistentVolumeClaim:
+            claimName: database
+      containers:
+        -
+          name: activemq-ep
+          image: 'erwinnttdata/activemq@sha256:06ebf46841e0ea05a741de078e61e392cdad099cc19b82e2d1a788cb9de5a339'
+          ports:
+            -
+              containerPort: 1883
+              protocol: TCP
+            -
+              containerPort: 5672
+              protocol: TCP
+            -
+              containerPort: 8161
+              protocol: TCP
+            -
+              containerPort: 61613
+              protocol: TCP
+            -
+              containerPort: 61614
+              protocol: TCP
+            -
+              containerPort: 61616
+              protocol: TCP
+          env:
+            -
+              name: ACTIVEMQ_MIN_MEMORY
+              value: '1024'
+            -
+              name: ACTIVEMQ_MAX_MEMORY
+              value: '1024'
+          resources:
+            limits:
+              memory: 1Gi
+            requests:
+              memory: 1Gi
+          volumeMounts:
+            -
+              name: activemq-ep-1
+              mountPath: /data/activemq
+            -
+              name: activemq-ep-1
+              mountPath: /var/log/activemq
+          terminationMessagePath: /dev/termination-log
+          imagePullPolicy: IfNotPresent
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext:
+status:
+  latestVersion: 10
+  observedGeneration: 11
+  replicas: 1
+  updatedReplicas: 1
+  availableReplicas: 1
+  details:
+    message: 'caused by a config change'
+    causes:
+      -
+        type: ConfigChange
